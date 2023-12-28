@@ -29,6 +29,7 @@ import com.example.productdevelopment.MVVM.Repository
 import com.example.productdevelopment.MVVM.ViewModelfactory
 import com.example.productdevelopment.R
 import com.example.productdevelopment.databinding.FragmentProductListBinding
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,7 +40,7 @@ class ProductList : Fragment() {
 
     lateinit var adapater:RVAdapter
     lateinit var binding:FragmentProductListBinding
-    lateinit var productList:ArrayList<ProductItem>
+    var productList:ArrayList<ProductItem> = arrayListOf()
     var filteredData:ArrayList<ProductItem> = arrayListOf()
     lateinit var viewModel:ProductViewModel
     override fun onCreateView(
@@ -53,10 +54,10 @@ class ProductList : Fragment() {
         binding.FAB.setOnClickListener {
             findNavController().navigate(R.id.action_productList_to_addProduct)
         }
-            binding.Progressbar.visibility=View.VISIBLE
-            binding.productRecyclerView.visibility=View.INVISIBLE
-            binding.Progressbar.animate()
 
+        binding.Progressbar.visibility=View.VISIBLE
+        binding.productRecyclerView.visibility=View.INVISIBLE
+        binding.Progressbar.animate()
 
 
         val apiService=Retrofit().buildRetrofit(APIService::class.java)
@@ -64,27 +65,32 @@ class ProductList : Fragment() {
         viewModel=ViewModelProvider(requireActivity(),ViewModelfactory(repo)).get(ProductViewModel::class.java)
 
         CoroutineScope(Dispatchers.IO).launch {
-            Log.d("ProductList","calling getItemVm()")
             viewModel.getItemVM()
         }
         viewModel.item.observe(viewLifecycleOwner,Observer{
             when(it){
                 is Result.Success->{
-                    Log.d("ProductList",it.value.toString())
-
                     productList=it.value
-                    binding.productRecyclerView.layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
+
                     if(productList.isNotEmpty()){
                         binding.productRecyclerView.visibility=View.VISIBLE
                         binding.Progressbar.animate().cancel()
                         binding.Progressbar.visibility=View.INVISIBLE
                     }
+                    binding.productRecyclerView.layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
                     adapater=RVAdapter(productList)
                     binding.productRecyclerView.adapter=adapater
+
+
                 }
                 is Result.Failure->{
                     Timber.d(it.errormessage.toString())
-                    Toast.makeText(requireContext(),"Failed to get Result",Toast.LENGTH_LONG).show()
+                    val snack=Snackbar.make(requireContext(),view,"Failed to get Result, Check you network connection",Snackbar.LENGTH_LONG)
+                        snack.setAction("Close",){
+                            snack.dismiss()
+                        }
+                        snack.show()
+
                 }
 
             }
@@ -96,9 +102,7 @@ class ProductList : Fragment() {
             override fun onQueryTextChange(newText: String?): Boolean {
                 filteredData.clear()
                 val searchtext = newText!!.toLowerCase(Locale.getDefault())
-                Log.i(TAG,searchtext)
                 if (searchtext.isNotEmpty()) {
-                    Log.i(TAG,searchtext)
                     productList.forEach {
                         if (it.product_name.lowercase(Locale.getDefault()).contains(searchtext)||
                             it.product_type.lowercase(Locale.getDefault()).contains(searchtext)) {

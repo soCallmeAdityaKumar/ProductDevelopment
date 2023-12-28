@@ -122,10 +122,6 @@ class AddProduct : Fragment() {
         if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED){
            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),REQUEST_CODE_PERMISSION)
         }
-        else if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)==PackageManager.PERMISSION_GRANTED){
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE)
-        }
 
     }
     override fun onRequestPermissionsResult(
@@ -133,15 +129,10 @@ class AddProduct : Fragment() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        Log.d(TAG,"${requestCode} ${permissions} ${grantResults.toString()}")
         if (requestCode == REQUEST_CODE_PERMISSION && grantResults.isNotEmpty() &&
             grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE)
-
-        }else if(grantResults.isNotEmpty()&&grantResults[0] == PackageManager.PERMISSION_DENIED){
-            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),REQUEST_CODE_PERMISSION)
-
         }
         else {
             Snackbar.make(requireContext(),
@@ -158,7 +149,6 @@ class AddProduct : Fragment() {
                 val file= File(selectedImageUri.toString())
                 binding.imageArea.setImageURI(selectedImageUri)
                 binding.addImagePhoto.visibility=View.INVISIBLE
-
                 Timber.d(TAG+file.absolutePath.toString())
             }
         }
