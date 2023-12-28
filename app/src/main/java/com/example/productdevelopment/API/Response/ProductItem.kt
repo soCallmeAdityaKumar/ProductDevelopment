@@ -1,4 +1,4 @@
-package com.example.productdevelopment.ProductList.API.Response
+package com.example.productdevelopment.API.Response
 
 data class ProductItem(
     val image: String,

@@ -3,6 +3,11 @@
     <style name="Base.Theme.ProductDevelopment" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">#242C3B</item>
+
+    </style>
+    <style name="CustomSearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="android:editTextColor">@color/white</item>
     </style>
 
     <style name="Theme.ProductDevelopment" parent="Base.Theme.ProductDevelopment" />
